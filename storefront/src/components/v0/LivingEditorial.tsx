@@ -10,6 +10,8 @@ export type Product = {
     title: string
     description: string
     price: number
+    original_price?: number
+    unit?: string
     currency_code: string
     video_url: string
     story: string
@@ -138,100 +140,122 @@ export function WhatsAppModal({
     )
 }
 
-// 2. Sticky Product Section
+// 2. Cinematic Product Section (Refactored)
 export function StickyProductSection({ product, onInterest }: { product: Product, onInterest: (p: Product) => void }) {
     const containerRef = useRef<HTMLDivElement>(null)
 
-    // Parallax / Scroll Logic
+    // Simplified opacity/scale for smooth entry/exit, but no heavy scroll interaction
     const { scrollYProgress } = useScroll({
         target: containerRef,
         offset: ["start end", "end start"]
     })
 
-    const videoScale = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.95, 1, 1, 0.95])
-    const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.5, 1, 1, 0.5])
+    const scale = useTransform(scrollYProgress, [0, 1], [0.98, 1])
+    const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.8, 1, 1, 0.8])
 
     return (
-        <div ref={containerRef} className="relative h-[150vh] w-full bg-black text-white">
-            {/* Sticky Background Video */}
-            <div className="sticky top-0 h-screen w-full overflow-hidden">
-                <motion.div
-                    style={{ scale: videoScale, opacity }}
-                    className="absolute inset-0 w-full h-full"
-                >
-                    {product.video_url ? (
-                        <video
-                            src={product.video_url}
-                            className="w-full h-full object-cover brightness-[0.7]"
-                            autoPlay
-                            muted
-                            loop
-                            playsInline
-                        />
-                    ) : (
-                        <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
-                            <span className="text-zinc-600">No Video Available</span>
-                        </div>
-                    )}
-                </motion.div>
+        <motion.div
+            ref={containerRef}
+            className="relative h-screen w-full bg-black text-white overflow-hidden flex items-end"
+            style={{ opacity, scale }}
+        >
+            {/* Background Video Layer */}
+            <div className="absolute inset-0 z-0">
+                {product.video_url ? (
+                    <video
+                        src={product.video_url}
+                        className="w-full h-full object-cover"
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                    />
+                ) : (
+                    <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                        <span className="text-zinc-600">No Video Available</span>
+                    </div>
+                )}
+                {/* Cinematic Gradient: Clear top, dark bottom for text legibility */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+            </div>
 
-                {/* Floating Gradient for text readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+            {/* Content Layer - Positioned at Bottom */}
+            <div className="relative z-10 w-full p-6 pb-12 sm:p-12 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
 
-                {/* Floating Content Layer (positioned at bottom for mobile) */}
-                <div className="absolute bottom-0 left-0 w-full p-6 sm:p-12 flex flex-col items-start gap-4 z-10 pb-24 sm:pb-32">
+                {/* Left: Branding & Story */}
+                <div className="max-w-lg space-y-4">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
+                        transition={{ delay: 0.2 }}
                     >
-                        <span className="inline-block px-3 py-1 bg-amber-500 text-black text-xs font-bold uppercase tracking-widest rounded-full mb-3">
+                        <span className="inline-block px-3 py-1 bg-amber-500/90 backdrop-blur-sm text-black text-[10px] font-bold uppercase tracking-widest rounded-full mb-3 shadow-lg">
                             Taste of Andhra
                         </span>
-                        <h2 className="text-4xl sm:text-6xl font-serif font-medium mb-2">{product.title}</h2>
-                        <p className="text-xl sm:text-2xl text-gray-200 font-light mb-4">
-                            ₹{product.price / 100} <span className="text-sm opacity-60 ml-2">/ pack</span>
-                        </p>
+                        <h2 className="text-4xl sm:text-6xl font-serif font-medium leading-tight drop-shadow-lg">
+                            {product.title}
+                        </h2>
                     </motion.div>
-                </div>
-            </div>
 
-            {/* Scrolling Text Overlay (The Story) */}
-            <div className="absolute inset-0 pointer-events-none flex flex-col justify-center items-center">
-                {/* This spacer pushes the text content to appear 'during' the scroll interactions if needed, 
-              but for 'Living Editorial', we often want the text to scroll OVER the stuck video.
-          */}
-
-                {/* We actually want distinct 'cards' that scroll over. */}
-                <div className="w-full max-w-lg mx-auto mt-[40vh] px-6 space-y-[40vh]">
-                    <motion.div
-                        className="bg-black/40 backdrop-blur-md border border-white/10 p-6 rounded-2xl text-center pointer-events-auto"
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ margin: "-20% 0px -20% 0px" }}
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                        className="text-sm sm:text-base text-gray-200 font-light leading-relaxed drop-shadow-md border-l-2 border-amber-500 pl-4"
                     >
-                        <p className="font-serif text-lg leading-relaxed text-gray-100 italic">
-                            "{product.story}"
-                        </p>
-                    </motion.div>
+                        "{product.story}"
+                    </motion.p>
 
                     <motion.div
-                        className="bg-white/10 backdrop-blur-md p-6 rounded-2xl text-center pointer-events-auto"
-                        initial={{ opacity: 0, y: 50 }}
-                        whileInView={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                        className="pt-2"
                     >
-                        <h3 className="text-xl font-bold mb-2">Freshly Prepared</h3>
-                        <p className="text-sm opacity-80 mb-6">Pre-book now to receive from the morning batch.</p>
-                        <button
-                            onClick={() => onInterest(product)}
-                            className="w-full bg-white text-black font-bold py-3 px-8 rounded-full hover:bg-amber-400 transition-colors shadow-lg active:scale-95"
-                        >
-                            Book via WhatsApp
-                        </button>
+                        <div className="flex items-baseline gap-3">
+                            <p className="text-3xl font-light text-white drop-shadow-md">
+                                ₹{product.price} <span className="text-base opacity-70">{product.unit || "/ pack"}</span>
+                            </p>
+                            {product.original_price && (
+                                <p className="text-lg text-white/50 line-through decoration-white/30">
+                                    ₹{product.original_price}
+                                </p>
+                            )}
+                            {product.original_price && (
+                                <span className="px-2 py-0.5 bg-green-500/20 border border-green-500/30 text-green-400 text-xs font-medium rounded uppercase tracking-wide">
+                                    {Math.round(((product.original_price - product.price) / product.original_price) * 100)}% OFF
+                                </span>
+                            )}
+                        </div>
                     </motion.div>
                 </div>
-            </div>
 
-        </div>
+                {/* Right: Premium CTA Button */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.6 }}
+                    className="w-full sm:w-auto"
+                >
+                    <button
+                        onClick={() => onInterest(product)}
+                        className="group relative w-full sm:w-auto overflow-hidden rounded-full bg-white/10 px-8 py-4 backdrop-blur-md border border-white/20 transition-all hover:bg-amber-500 hover:border-amber-500 hover:shadow-[0_0_40px_-10px_rgba(245,158,11,0.5)] active:scale-95"
+                    >
+                        <div className="flex items-center justify-center gap-3">
+                            <div className="p-1 rounded-full bg-green-500 group-hover:bg-white transition-colors">
+                                <MessageCircle size={18} className="text-white group-hover:text-green-600 transition-colors" fill="currentColor" />
+                            </div>
+                            <span className="font-bold tracking-wide text-white group-hover:text-black transition-colors">
+                                Book via WhatsApp
+                            </span>
+                        </div>
+                    </button>
+                    <p className="text-[10px] text-center text-white/50 mt-2 uppercase tracking-wider">
+                        Pre-order for Morning Batch
+                    </p>
+                </motion.div>
+
+            </div>
+        </motion.div>
     )
 }

@@ -22,7 +22,7 @@ export default async function Home(props: {
   // Use static V0 data directly
   const uiProducts = V0_PRODUCTS.map((p) => ({
     ...p,
-    price: p.price / 100 // Convert cents to whole units if needed, or keep as is depending on display logic
+    price: p.price // Component handles the /100 division
   }))
 
   return (
