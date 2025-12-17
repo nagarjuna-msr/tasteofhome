@@ -20,7 +20,7 @@ Deploy the `/storefront` directory to Render as a **Static Site** or **Node Serv
 
 3.  **Environment Variables (CRITICAL):**
     *   `NEXT_PUBLIC_GHEE_VIDEO_URL`: `/videos/ghee_video.mp4` (Ensure assets are copied).
-    *   `NEXT_PUBLIC_GOOGLE_SCRIPT_URL`: `https://script.google.com/macros/s/AKfycbzZx3RhMuMcHn3DxMn8ueBRlThjvuKEg7cN5gtiQ-PgZ7ZtCWD2XjG6iduTucT0z8lh/exec`
+    *   `NEXT_PUBLIC_GOOGLE_SCRIPT_URL`: `https://script.google.com/macros/s/AKfycbxUVnuCDeJoB_72-Bu33Vf43GbVDFbux7djPusW9mDECuMjU7nutsYId42kZRjsoU5X/exec`
 
 4.  **Action:**
     *   Use your Render MCP tools to create/deploy this service.

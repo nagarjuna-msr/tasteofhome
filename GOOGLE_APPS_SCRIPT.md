@@ -54,4 +54,12 @@ function doPost(e) {
     })).setMimeType(ContentService.MimeType.JSON);
   }
 }
+
+// This function handles browser visits (GET requests) for testing
+function doGet(e) {
+  return ContentService.createTextOutput(JSON.stringify({
+    "result": "success",
+    "message": "TasteOfHome Webhook is Active! Use POST to send data."
+  })).setMimeType(ContentService.MimeType.JSON);
+}
 ```

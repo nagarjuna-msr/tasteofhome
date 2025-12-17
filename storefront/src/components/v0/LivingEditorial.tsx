@@ -39,6 +39,7 @@ export function WhatsAppModal({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
+        console.log("🟢 Modal: Starting submission...")
 
         try {
             await onSubmit({
@@ -47,8 +48,10 @@ export function WhatsAppModal({
                 product: product?.title,
                 interest_type: "Pre-book Hybrid 2"
             })
+            console.log("✅ Modal: Submission resolved. Setting sent=true.")
             setSent(true)
             setTimeout(() => {
+                console.log("⏰ Modal: Timeout reached. Closing.")
                 setSent(false)
                 setLoading(false)
                 onClose()
@@ -56,7 +59,7 @@ export function WhatsAppModal({
                 setMobile("")
             }, 2000)
         } catch (err) {
-            console.error(err)
+            console.error("❌ Modal Error:", err)
             setLoading(false)
         }
     }

@@ -20,18 +20,24 @@ export async function POST(request: Request) {
 
         if (SCRIPT_URL) {
             try {
+                // Add absolute timeout to prevent hanging
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 4000); 
+
                 const response = await fetch(SCRIPT_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    mode: "no-cors", // Important for Google Apps Script
-                    body: JSON.stringify({ name, mobile, product, interest_type })
+                    body: JSON.stringify({ name, mobile, product, interest_type }),
+                    signal: controller.signal
                 });
-                console.log("✅ Lead sent to Google Script Webhook");
+                clearTimeout(timeoutId);
+                console.log("✅ Lead sent to Google Script Webhook. Status:", response.status);
             } catch (webhookError) {
-                console.error("❌ Webhook Error:", webhookError);
+                console.error("❌ Webhook Error (Timeout/Network):", webhookError);
+                // Continue to return success to UI
             }
         } else {
-            console.warn("⚠️ Google Script URL missing (NEXT_PUBLIC_GOOGLE_SCRIPT_URL). Lead logged to console only.");
+             console.warn("⚠️ Google Script URL missing.");
         }
 
         return NextResponse.json({ success: true, message: "Interest received!" });
